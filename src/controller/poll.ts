@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import isEmpty from 'lodash/isEmpty';
 import AppRes from '../types/AppRes';
+import * as pollService from '../services/poll';
 
 export const getPollById = async (
   req: Request,
@@ -7,7 +9,8 @@ export const getPollById = async (
   next: NextFunction
 ) => {
   try {
-    const response: AppRes = { data: 'get poll', isError: false };
+    const poll = await pollService.get(req.params.id);
+    const response: AppRes = { data: poll, isError: false };
     res.send(response);
   } catch (error) {
     next(error);
@@ -20,7 +23,19 @@ export const createPoll = async (
   next: NextFunction
 ) => {
   try {
-    const response: AppRes = { data: 'poll create', isError: false };
+    const { name, options } = req.body;
+    if (isEmpty(name) || isEmpty(options)) {
+      const errRes: AppRes = {
+        data: {},
+        isError: true,
+        errMsg: 'Name and options are required',
+      };
+      res.status(400).send(errRes);
+      return;
+    }
+    const newPollId = await pollService.create(name, options);
+    const poll = await pollService.get(newPollId);
+    const response: AppRes = { data: poll, isError: false };
     res.send(response);
   } catch (error) {
     next(error);
