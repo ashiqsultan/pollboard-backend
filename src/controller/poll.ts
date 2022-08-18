@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import isEmpty from 'lodash/isEmpty';
 import AppRes from '../types/AppRes';
 import * as pollService from '../services/poll';
+import * as PollBox from '../models/PollBox';
 
 export const getPollById = async (
   req: Request,
@@ -35,7 +36,9 @@ export const createPoll = async (
     }
     const newPollId = await pollService.create(name, options);
     const poll = await pollService.get(newPollId);
-    const response: AppRes = { data: poll, isError: false };
+    await PollBox.create(poll);
+    const pollBox = await PollBox.get(newPollId);
+    const response: AppRes = { data: { poll, pollBox }, isError: false };
     res.send(response);
   } catch (error) {
     next(error);
