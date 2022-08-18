@@ -1,3 +1,11 @@
+/**
+ * PollBox is a Redis Hash that contains the Poll's options and their counts.
+ * The key is pollBox:<entityId> where <entityId> is the Poll's entityId.
+ * Each hash property are options from Poll entity and respective value represents the no of votes.
+ * @param entityId The Poll's entityId.
+ * @param option The option to update.
+ * @param count The count to update the option with (can be negative).
+ */
 import { Poll } from './Poll';
 import redis from '../redis';
 
