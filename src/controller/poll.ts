@@ -11,7 +11,8 @@ export const getPollById = async (
 ) => {
   try {
     const poll = await pollService.get(req.params.id);
-    const response: AppRes = { data: poll, isError: false };
+    const pollBox = await PollBox.get(req.params.id);
+    const response: AppRes = { data: { poll, pollBox }, isError: false };
     res.send(response);
   } catch (error) {
     next(error);
