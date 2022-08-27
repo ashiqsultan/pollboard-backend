@@ -1,7 +1,8 @@
 # Poll Board Real-time Poll app
 The application lets users to create polls and share it with others. Once users cast their vote they can view the results in real-time i.e the poll result graph in Frontend would get updated real-time for all users as votes are being casted.
 
-## App Screenshots
+### Architecture Diagram
+![Architecture Diagram](https://imgur.com/rbEEXNG.png)
 ### Homepage
 ![Homepage](https://imgur.com/aSYjmxX.png)
 ### Vote page
