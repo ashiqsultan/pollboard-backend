@@ -1,8 +1,13 @@
 # Poll Board Real-time Poll app
 The application lets users to create polls and share it with others. Once users cast their vote they can view the results in real-time i.e the poll result graph in Frontend would get updated real-time for all users as votes are being casted.
 
-# TODO
-[Insert app screenshots](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#uploading-assets)
+## App Screenshots
+### Homepage
+![Homepage](https://imgur.com/aSYjmxX.png)
+### Vote page
+![App Screenshot](https://i.imgur.com/ZIr6uj4.png)
+### Create new Poll page
+![Create new Poll page](https://imgur.com/t24Nhy7.png)
 
 # TODO Overview video (Optional)
 
@@ -22,15 +27,15 @@ The application consists of three repositories
 The API server is responsible for all CRUD operations on Poll entity.
 ### Socket Service
 The socket service uses [Socket.IO](https://socket.io) . All users are connect to a socket room. The room name is the poll id they are answering for.
-### Frondend
-As you guessed it the frontend application build with React as a SPA. It uses the Socket io client for websockets and Plotly for charts. 
+### Frontend
+As you guessed it is the frontend application build with React as a SPA. It uses the Socket io client for websockets and Plotly for charts. 
 
 ## How the data is stored:
 
 ### On Create new Poll  
 When a Request to create a new Poll is made we create two data structures in Redis. A RedisJSON and a Hash.  
 1. **RedisJSON** (Namespace `Poll:<pollId>`).  
-The essential poll data like pollId (entityId), title and poll options are stored as RedisJSON. This cloud be extended to include other meta data related to poll. We have used **Redis OM** to store the poll data 
+The essential poll data like pollId (entityId), title and poll options are stored as RedisJSON. This cloud be extended to include other meta data related to poll. The app uses **Redis OM** to store the poll data 
 ```
 import { Entity, Schema } from 'redis-om';
 
@@ -83,7 +88,6 @@ RedisInsight screenshot
 ![RedisInsight screenshot pollBox](https://i.imgur.com/ZJLS4OR.png)  
 
 ## How the data is accessed
-Let's discuss how the stored data is accessed.
 ### On Get Poll data
 The Frontend makes a GET request with pollId to get the poll data. Since we created the poll data using the Redis OM we can use the same to retrieve the data.
 ```
@@ -97,9 +101,9 @@ const get = async (entityId: string): Promise<Poll> => {
 ### On New Vote
 This is the place where the real-time part of the application comes into play. For this event we do couple of operations on both the backend services.
 - API Service
-    1. Update the hash
+    1. Update the hash (Increment vote count by one)
     2. LPUSH updated pollId to the queue
-    3. Publish a update message to pub/sub
+    3. Publish an update message to pub/sub
 - Socket service
     1. pub/sub receives the update message
     2. RPOP the pollId from Queue
@@ -107,7 +111,7 @@ This is the place where the real-time part of the application comes into play. F
     4. Broadcast to socket room.  
 
 **1. Update the hash**  
-We increment the poll hash by 1 for the option sent in request payload. Since we have used Redis Hash we can do it with a single command Below is the function to increment and get the updated hash.  
+We increment the poll hash by 1 for the option sent in request payload. Since we have used Redis Hash we can increment with a single command. Below is the function to increment and get the updated hash.  
 ```
 const update = async (entityId: string, option: string, count: number) => {
   const pollBoxId = `pollBox:${entityId}`;
@@ -117,7 +121,9 @@ const update = async (entityId: string, option: string, count: number) => {
 };
 ```
 - `redis.hIncrBy(pollBoxId, option, count)` command increments the option by the value provided in count, here we use 1 for each vote.
-- `redis.hGetAll(pollBoxId)` Gets the updated hash data.
+- `redis.hGetAll(pollBoxId)` Gets the updated hash data.  
+
+Redis Insight Screenshot
 ![Redis Insight Screenshot](https://i.imgur.com/38nOecE.png)  
 
 **2. Update the Queue**
@@ -137,7 +143,7 @@ redis.publish(CHANNEL_NAME, UPDATE);
 ```
 The command `redis.publish(CHANNEL_NAME, UPDATE)` simply publishes an update message to the redis pub/sub later this will be consumed in the Socket service.
 
-**Socket Service**
+**Socket Service**  
 Socket service is subscribed to the Redis channel `channel:poll`. Once an update message is received from the channel we RPOP the pollId from the queue `queue:polls` and fetch the latest vote count form the hash and broadcasts the same to pollId room.  
 **1. Subscribe to Redis pub/sub channel**
 ```
@@ -177,41 +183,16 @@ const pollBox = await redis.hGetAll(pollBoxId);
 1. Clone all the three repos
 2. Create a `.env` file in the API service root directory
 3. Create a `.env` file in the Socket service root directory
-4. Both env file should have the Redis connection string with the name `REDIS_CONNECTION_STRING` example
+4. Both env file should have the Redis connection string with the name `REDIS_CONNECTION_STRING`
 ```
-// .env file
+// Example .env file
 REDIS_CONNECTION_STRING = redis://username:password@redis-11983.c274.us-east-1-3.ec2.cloud.redislabs.com:11983
 ```
 5. Run `npm install` for all the three repos
 6. Run the command `npm run dev` in all the repos to start the servers locally
 
 ### Prerequisites
-
-[Fill out with any prerequisites (e.g. Node, Docker, etc.). Specify minimum versions]
-
-### Local installation
-
-[Insert instructions for local installation]
-
-## Deployment
-
-To make deploys work, you need to create free account on [Redis Cloud](https://redis.info/try-free-dev-to)
-
-### Google Cloud Run
-
-[Insert Run on Google button](https://cloud.google.com/blog/products/serverless/introducing-cloud-run-button-click-to-deploy-your-git-repos-to-google-cloud)
-
-### Heroku
-
-[Insert Deploy on Heroku button](https://devcenter.heroku.com/articles/heroku-button)
-
-### Netlify
-
-[Insert Deploy on Netlify button](https://www.netlify.com/blog/2016/11/29/introducing-the-deploy-to-netlify-button/)
-
-### Vercel
-
-[Insert Deploy on Vercel button](https://vercel.com/docs/deploy-button)
+> Node.js min version 16
 
 ## More Information about Redis Stack
 
