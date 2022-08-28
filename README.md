@@ -13,10 +13,7 @@ The application lets users to create polls and share it with others. Once users 
 # TODO Overview video (Optional)
 
 Here's a short video that explains the project and how it uses Redis:
-
-[Insert your own video here, and remove the one below]
-
-[![Embed your YouTube video](https://i.ytimg.com/vi/vyxdC1qK4NE/maxresdefault.jpg)](https://www.youtube.com/watch?v=vyxdC1qK4NE)
+> [![IMAGE ALT TEXT HERE](https://i.imgur.com/rbEEXNG.png)](https://youtu.be/LjxmwYUJbwY)
 
 ## How it works
 The application consists of three repositories
